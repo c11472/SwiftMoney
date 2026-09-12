@@ -39,4 +39,11 @@ class AppTest {
 
         assertEquals("Amount cannot be negative.", exception.getMessage());
     }
+
+    @Test
+    void roundsCliAmountsToTwoDecimals() {
+        String result = app.run(new String[]{"open-account", "Alice", "10.005"});
+
+        assertTrue(result.endsWith("Balance: 10.01"));
+    }
 }

@@ -14,6 +14,7 @@ import java.sql.Timestamp;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -91,8 +92,9 @@ public class PostgresBankRepository implements BankRepository {
         try (Connection connection = newConnection()) {
             connection.setAutoCommit(false);
             try {
-                BigDecimal fromBalance = lockAndReadBalance(connection, accountSql, fromAccountNumber);
-                BigDecimal toBalance = lockAndReadBalance(connection, accountSql, toAccountNumber);
+                Map<String, BigDecimal> lockedBalances = lockBalancesInOrder(connection, accountSql, fromAccountNumber, toAccountNumber);
+                BigDecimal fromBalance = lockedBalances.get(fromAccountNumber);
+                BigDecimal toBalance = lockedBalances.get(toAccountNumber);
                 if (fromBalance.compareTo(amount) < 0) {
                     throw new IllegalStateException("Insufficient balance.");
                 }
@@ -205,6 +207,17 @@ public class PostgresBankRepository implements BankRepository {
                 return resultSet.getBigDecimal("balance");
             }
         }
+    }
+
+    private Map<String, BigDecimal> lockBalancesInOrder(Connection connection, String sql, String firstAccountNumber, String secondAccountNumber) throws SQLException {
+        List<String> orderedAccountNumbers = new ArrayList<>(List.of(firstAccountNumber, secondAccountNumber));
+        orderedAccountNumbers.sort(String::compareTo);
+
+        Map<String, BigDecimal> balances = new HashMap<>();
+        for (String accountNumber : orderedAccountNumbers) {
+            balances.put(accountNumber, lockAndReadBalance(connection, sql, accountNumber));
+        }
+        return balances;
     }
 
     private void insertTransaction(PreparedStatement statement, String accountNumber, String type, BigDecimal amount, String description) throws SQLException {
