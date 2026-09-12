@@ -1,7 +1,6 @@
 package com.swiftmoney;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -115,7 +114,7 @@ public class App {
 
     private BigDecimal parseAmount(String rawAmount) {
         try {
-            return new BigDecimal(rawAmount).setScale(2, RoundingMode.HALF_UP);
+            return new BigDecimal(rawAmount);
         } catch (RuntimeException exception) {
             throw new IllegalArgumentException("Invalid amount: " + rawAmount, exception);
         }

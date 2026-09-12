@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +22,7 @@ public class InMemoryBankRepository implements BankRepository {
 
         Account account = new Account(accountNumber, holderName, openingDeposit);
         accounts.put(accountNumber, account);
-        transactions.put(accountNumber, new ArrayList<>());
+        transactions.put(accountNumber, Collections.synchronizedList(new ArrayList<>()));
         if (openingDeposit.compareTo(BigDecimal.ZERO) > 0) {
             addTransaction(accountNumber, "OPENING_DEPOSIT", openingDeposit, "Initial account funding");
         }
@@ -88,7 +89,7 @@ public class InMemoryBankRepository implements BankRepository {
     }
 
     private void addTransaction(String accountNumber, String type, BigDecimal amount, String description) {
-        transactions.computeIfAbsent(accountNumber, ignored -> new ArrayList<>())
+        transactions.computeIfAbsent(accountNumber, ignored -> Collections.synchronizedList(new ArrayList<>()))
                 .add(new Transaction(accountNumber, type, amount, description, OffsetDateTime.now(ZoneOffset.UTC)));
     }
 }

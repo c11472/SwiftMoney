@@ -20,6 +20,14 @@ class AppTest {
     }
 
     @Test
+    void opensAccountWithoutOpeningDeposit() {
+        String result = app.run(new String[]{"open-account", "Alice"});
+
+        assertTrue(result.contains("Account created successfully: ACC-"));
+        assertTrue(result.endsWith("Balance: 0.00"));
+    }
+
+    @Test
     void supportsTransferAndHistoryCommands() {
         BankService service = new BankService(new InMemoryBankRepository());
         Account first = service.openAccount("Alice", new BigDecimal("100.00"));
