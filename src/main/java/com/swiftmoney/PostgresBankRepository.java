@@ -65,7 +65,7 @@ public class PostgresBankRepository implements BankRepository {
                 connection.commit();
                 return new Account(accountNumber, holderName, openingDeposit);
             } catch (SQLException exception) {
-                connection.rollback();
+                rollback(connection, exception);
                 throw exception;
             }
         } catch (SQLException exception) {
@@ -118,7 +118,7 @@ public class PostgresBankRepository implements BankRepository {
 
                 connection.commit();
             } catch (SQLException | RuntimeException exception) {
-                connection.rollback();
+                rollback(connection, exception);
                 throw exception;
             }
         } catch (SQLException exception) {
@@ -192,7 +192,7 @@ public class PostgresBankRepository implements BankRepository {
                 connection.commit();
                 return updatedBalance;
             } catch (SQLException | RuntimeException exception) {
-                connection.rollback();
+                rollback(connection, exception);
                 throw exception;
             }
         } catch (SQLException exception) {
@@ -230,6 +230,14 @@ public class PostgresBankRepository implements BankRepository {
         statement.setString(4, description);
         statement.setTimestamp(5, Timestamp.from(OffsetDateTime.now(ZoneOffset.UTC).toInstant()));
         statement.executeUpdate();
+    }
+
+    private void rollback(Connection connection, Exception originalException) {
+        try {
+            connection.rollback();
+        } catch (SQLException rollbackException) {
+            originalException.addSuppressed(rollbackException);
+        }
     }
 
     private Connection newConnection() throws SQLException {

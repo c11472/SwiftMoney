@@ -115,7 +115,7 @@ public class App {
     private BigDecimal parseAmount(String rawAmount) {
         try {
             return new BigDecimal(rawAmount).setScale(2, RoundingMode.HALF_UP);
-        } catch (NumberFormatException exception) {
+        } catch (RuntimeException exception) {
             throw new IllegalArgumentException("Invalid amount: " + rawAmount, exception);
         }
     }

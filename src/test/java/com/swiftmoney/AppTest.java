@@ -56,4 +56,27 @@ class AppTest {
         assertEquals("Deposit successful. Current balance: 15.01",
                 depositApp.run(new String[]{"deposit", account.accountNumber(), "10.005"}));
     }
+
+    @Test
+    void roundsWithdrawAmountsToTwoDecimals() {
+        BankService service = new BankService(new InMemoryBankRepository());
+        Account account = service.openAccount("Alice", new BigDecimal("20.00"));
+        App withdrawApp = new App(service);
+
+        assertEquals("Withdrawal successful. Current balance: 9.99",
+                withdrawApp.run(new String[]{"withdraw", account.accountNumber(), "10.005"}));
+    }
+
+    @Test
+    void roundsTransferAmountsToTwoDecimals() {
+        BankService service = new BankService(new InMemoryBankRepository());
+        Account source = service.openAccount("Alice", new BigDecimal("20.00"));
+        Account destination = service.openAccount("Bob", new BigDecimal("0.00"));
+        App transferApp = new App(service);
+
+        assertEquals("Transfer successful.",
+                transferApp.run(new String[]{"transfer", source.accountNumber(), destination.accountNumber(), "10.005"}));
+        assertEquals("Current balance: 9.99", transferApp.run(new String[]{"balance", source.accountNumber()}));
+        assertEquals("Current balance: 10.01", transferApp.run(new String[]{"balance", destination.accountNumber()}));
+    }
 }

@@ -51,6 +51,9 @@ public class InMemoryBankRepository implements BankRepository {
 
     @Override
     public synchronized void transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount) {
+        if (fromAccountNumber.equals(toAccountNumber)) {
+            throw new IllegalArgumentException("Source and destination accounts must be different.");
+        }
         Account fromAccount = getRequiredAccount(fromAccountNumber);
         Account toAccount = getRequiredAccount(toAccountNumber);
         if (fromAccount.balance().compareTo(amount) < 0) {
