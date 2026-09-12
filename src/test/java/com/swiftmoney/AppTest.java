@@ -79,4 +79,12 @@ class AppTest {
         assertEquals("Current balance: 9.99", transferApp.run(new String[]{"balance", source.accountNumber()}));
         assertEquals("Current balance: 10.01", transferApp.run(new String[]{"balance", destination.accountNumber()}));
     }
+
+    @Test
+    void rejectsMalformedCliAmounts() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> app.run(new String[]{"open-account", "Alice", "abc"}));
+
+        assertEquals("Invalid amount: abc", exception.getMessage());
+    }
 }

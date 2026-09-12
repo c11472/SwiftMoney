@@ -26,10 +26,11 @@ public class App {
 
     static BankRepository createRepository(Map<String, String> environment) {
         String storage = environment.getOrDefault("SWIFTMONEY_STORAGE", environment.containsKey("SWIFTMONEY_DB_URL") ? "postgres" : "memory");
-        if ("postgres".equalsIgnoreCase(storage)) {
-            return PostgresBankRepository.fromEnvironment(environment);
-        }
-        return new InMemoryBankRepository();
+        return switch (storage.toLowerCase(Locale.ROOT)) {
+            case "postgres" -> PostgresBankRepository.fromEnvironment(environment);
+            case "memory" -> new InMemoryBankRepository();
+            default -> throw new IllegalArgumentException("Unsupported SWIFTMONEY_STORAGE: " + storage);
+        };
     }
 
     public String run(String[] args) {

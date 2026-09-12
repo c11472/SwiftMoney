@@ -68,6 +68,8 @@ public class PostgresBankRepository implements BankRepository {
                 rollback(connection, exception);
                 throw exception;
             }
+        } catch (RuntimeException exception) {
+            throw exception;
         } catch (SQLException exception) {
             throw new IllegalStateException("Failed to create account.", exception);
         }
@@ -121,6 +123,8 @@ public class PostgresBankRepository implements BankRepository {
                 rollback(connection, exception);
                 throw exception;
             }
+        } catch (RuntimeException exception) {
+            throw exception;
         } catch (SQLException exception) {
             throw new IllegalStateException("Failed to transfer funds.", exception);
         }
@@ -195,6 +199,8 @@ public class PostgresBankRepository implements BankRepository {
                 rollback(connection, exception);
                 throw exception;
             }
+        } catch (RuntimeException exception) {
+            throw exception;
         } catch (SQLException exception) {
             throw new IllegalStateException("Failed to update account balance.", exception);
         }
