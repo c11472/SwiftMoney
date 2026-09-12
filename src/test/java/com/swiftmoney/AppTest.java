@@ -46,4 +46,14 @@ class AppTest {
 
         assertTrue(result.endsWith("Balance: 10.01"));
     }
+
+    @Test
+    void roundsDepositAmountsToTwoDecimals() {
+        BankService service = new BankService(new InMemoryBankRepository());
+        Account account = service.openAccount("Alice", new BigDecimal("5.00"));
+        App depositApp = new App(service);
+
+        assertEquals("Deposit successful. Current balance: 15.01",
+                depositApp.run(new String[]{"deposit", account.accountNumber(), "10.005"}));
+    }
 }

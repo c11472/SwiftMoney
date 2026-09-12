@@ -85,6 +85,9 @@ public class PostgresBankRepository implements BankRepository {
 
     @Override
     public void transfer(String fromAccountNumber, String toAccountNumber, BigDecimal amount) {
+        if (fromAccountNumber.equals(toAccountNumber)) {
+            throw new IllegalArgumentException("Source and destination accounts must be different.");
+        }
         String accountSql = "SELECT balance FROM accounts WHERE account_number = ? FOR UPDATE";
         String updateSql = "UPDATE accounts SET balance = ? WHERE account_number = ?";
         String transactionSql = "INSERT INTO transactions (account_number, transaction_type, amount, description, created_at) VALUES (?, ?, ?, ?, ?)";
@@ -142,7 +145,7 @@ public class PostgresBankRepository implements BankRepository {
 
     @Override
     public List<Transaction> getTransactions(String accountNumber) {
-        String sql = "SELECT account_number, transaction_type, amount, description, created_at FROM transactions WHERE account_number = ? ORDER BY created_at";
+        String sql = "SELECT account_number, transaction_type, amount, description, created_at FROM transactions WHERE account_number = ? ORDER BY created_at, id";
         List<Transaction> results = new ArrayList<>();
         try (Connection connection = newConnection();
              PreparedStatement statement = connection.prepareStatement(sql)) {
